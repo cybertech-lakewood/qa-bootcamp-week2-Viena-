@@ -1,5 +1,7 @@
 function greet(name: string): string {
-  return `Hello, ${name}!`;
+  return "Hello " + name;
 }
 
-console.log(greet(098));
+const message = greet("Viena");
+
+console.log(message);
