@@ -8,5 +8,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src", "tests", "scripts", "playwright.config.ts"]
+  "include": ["src", "tests", "scripts", "playwright.config.ts", "Practise/test-1.spec.ts"]
 }

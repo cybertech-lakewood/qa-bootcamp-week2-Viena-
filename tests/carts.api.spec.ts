@@ -74,6 +74,6 @@ test("requests a cart id that doesn't exist and checks for a 404", async ({ requ
     `${API_BASE}/carts/xxxxxx-1111-xxxx-0000`
   );
 
-  expect(res.status()).toBe(404);
+  expect(res.status()).toBe(404);//was previously 404
 
 });
