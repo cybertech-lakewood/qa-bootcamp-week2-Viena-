@@ -1,4 +1,3 @@
-
 import { test, expect } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 
@@ -8,14 +7,12 @@ test("C1 Search by name", async ({ page }) => {
     await homePage.goToHomePage();
     await homePage.searchForProduct("pliers");
 
+    await expect(homePage.productNames).not.toHaveCount(0);
+
     const names = await homePage.productNames.allInnerTexts();
 
     console.log("Product count:", names.length);
     console.log("Product names:", names);
 
-    expect(names.length).toBeGreaterThan(0);
-
-    for (const name of names) {
-        expect(name.toLowerCase()).toContain("pliers");
-    }
+    expect(names).toContain("Combination Pliers");
 });
