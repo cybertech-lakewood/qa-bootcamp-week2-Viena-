@@ -1,4 +1,5 @@
 
+
 import { test, expect } from "@playwright/test";
 
 const API_BASE = "https://api.practicesoftwaretesting.com";
@@ -7,36 +8,46 @@ test.describe("Carts API", () => {
 
   let cartId: string | undefined;
 
-  // Reset before every test
   test.beforeEach(() => {
     cartId = undefined;
   });
 
-  // Clean up after every test
+  // Clean up created cart after each test
   test.afterEach(async ({ request }) => {
     if (cartId) {
       const deleteRes = await request.delete(
-        `${API_BASE}/carts/${cartId}`
+        `${API_BASE}/carts/${cartId}`,
+        { timeout: 15000 }
       );
 
       expect([200, 204]).toContain(deleteRes.status());
+
+      console.log("Cart cleanup status:", deleteRes.status());
     }
   });
 
-  test("creates a cart, adds a product, and checks response fields", async ({ request }) => {
+  // C4: Add a product to a cart
+  test("creates a cart, adds a product, and verifies persistence", async ({ request }) => {
 
-    // Get a product
+    // Get an available product
     const productsRes = await request.get(`${API_BASE}/products`);
     expect(productsRes.status()).toBe(200);
 
     const products = await productsRes.json();
-    const productId = products.data[0].id;
 
-    expect(productId).toBeTruthy();
+    const availableProduct = products.data.find(
+      (product: any) => product.in_stock === true
+    );
+
+    expect(availableProduct).toBeTruthy();
+
+    const productId = availableProduct.id;
+
+    console.log("Selected product:", availableProduct.name);
 
     // Create a cart
     const cartRes = await request.post(`${API_BASE}/carts`);
-    expect([200, 201]).toContain(cartRes.status());
+    expect(cartRes.status()).toBe(201);
 
     const cart = await cartRes.json();
     cartId = cart.id;
@@ -51,7 +62,7 @@ test.describe("Carts API", () => {
       }
     });
 
-    expect([200, 201]).toContain(addRes.status());
+    expect(addRes.status()).toBe(200);
 
     // Retrieve cart
     const getRes = await request.get(`${API_BASE}/carts/${cartId}`);
@@ -59,21 +70,29 @@ test.describe("Carts API", () => {
 
     const cartData = await getRes.json();
 
-    // Verify response fields
+    // Verify cart and product persistence
     expect(cartData.id).toBe(cartId);
     expect(Array.isArray(cartData.cart_items)).toBe(true);
-    expect(cartData.cart_items.length).toBeGreaterThan(0);
 
+    const addedItem = cartData.cart_items.find(
+      (item: any) => item.product_id === productId
+    );
+
+    expect(addedItem).toBeTruthy();
+    expect(addedItem.quantity).toBe(2);
+
+    console.log("Product successfully verified in cart.");
   });
 
 });
-//TEST 2
-test("requests a cart id that doesn't exist and checks for a 404", async ({ request }) => {
+
+// Negative test: Nonexistent cart
+test("requests a cart ID that does not exist and checks for 404", async ({ request }) => {
 
   const res = await request.get(
     `${API_BASE}/carts/xxxxxx-1111-xxxx-0000`
   );
 
-  expect(res.status()).toBe(404);//was previously 404
+  expect(res.status()).toBe(404);
 
 });

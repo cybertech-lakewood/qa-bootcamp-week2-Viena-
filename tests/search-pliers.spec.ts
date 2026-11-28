@@ -1,21 +1,18 @@
 import { test, expect } from "@playwright/test";
+import { HomePage } from "../pages/HomePage";
 
-test("searching for pliers shows only products matching pliers", async ({ page }) => {
-  await page.goto("https://practicesoftwaretesting.com");
+test("C1 Search by name", async ({ page }) => {
+    const homePage = new HomePage(page);
 
-  await page.getByRole("textbox", { name: /search/i }).fill("pliers");
-  await page.getByRole("button", { name: /search/i }).click();
-// I have used the getByRole method to locate the search input field
-//  and search button on the home page. 
-// I filled in the search input field with the term "pliers" 
-// and clicked the search button to perform a search for products matching "pliers".
-  const matchingItems = page.getByRole("heading", { name: /pliers/i });
-  await expect(matchingItems.first()).toBeVisible();
+    await homePage.goToHomePage();
+    await homePage.searchForProduct("pliers");
 
-  const names = await matchingItems.allInnerTexts();
-  expect(names.length).toBeGreaterThan(0);
+    await expect(homePage.productNames).not.toHaveCount(0);
 
-  for (const name of names) {
-    expect(name.toLowerCase()).toContain("pliers");
-  }
+    const names = await homePage.productNames.allInnerTexts();
+
+    console.log("Product count:", names.length);
+    console.log("Product names:", names);
+
+    expect(names).toContain("Combination Pliers");
 });
