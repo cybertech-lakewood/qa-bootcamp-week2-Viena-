@@ -1,3 +1,4 @@
+
 import { defineConfig, devices } from "@playwright/test";
 import "dotenv/config";
 
@@ -6,6 +7,7 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL: process.env.TOOLSHOP_URL ?? "https://practicesoftwaretesting.com",
+    trace: "retain-on-failure",
   },
   projects: [
     {
@@ -14,3 +16,4 @@ export default defineConfig({
     },
   ],
 });
+
